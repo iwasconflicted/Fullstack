@@ -21,7 +21,7 @@ namespace api.Controllers
         _context = context;
        }
 
-       [HttpGet]
+    [HttpGet]
 
        public async Task<IEnumerable<Student>> getStudent()
        {
@@ -47,7 +47,64 @@ namespace api.Controllers
         return BadRequest();
     }
 
+    [HttpDelete("{id:int}")]
 
+    public async Task<IActionResult> Delete(int id)
+    {
+        var student = await _context.Students.FindAsync(id);
+        if(student == null)
+        {
+            return NotFound();
+        }
+
+        _context.Remove(student);
+
+        var result = await _context.SaveChangesAsync();
+
+        if(result > 0)
+        {
+            return Ok("Student was deleted");
+        }
+        return BadRequest("Cannot find student");
     }
     
+     [HttpGet("{id:int}")]
+
+     public async Task<ActionResult<Student>> GetStudent(int id)
+     {
+        var student = await _context.Students.FindAsync(id);
+        if(student == null)
+        {
+            return NotFound("Sorry student not found");
+        }
+        return Ok(student);
+     }
+
+    [HttpPut("{id:int}")]
+// when you want to return an object, use ACTION.
+// if you don't, use an IACTION.
+// Use an IEnumerable when you want to use a list of something.
+
+    public async Task<IActionResult> EditStudent(int id, Student student)
+    {
+        var studentFromDb = await _context.Students.FindAsync(id);
+        if(studentFromDb == null)
+        {
+            return BadRequest("Student not found");
+        }
+        studentFromDb.Name = student.Name;
+        studentFromDb.Email = student.Email;
+        studentFromDb.Address = student.Address;
+        studentFromDb.PhoneNumber = student.PhoneNumber;
+
+        var result = await _context.SaveChangesAsync();
+
+        if(result > 0)
+        {
+            return Ok("Student was edited");
+        }
+        return BadRequest("Unable to update data");
+    }
+
+}
 }
